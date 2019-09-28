@@ -1,13 +1,13 @@
 # WP Track Kepper
-Contributors: De paragon
-Donate link: 3HPrLAAqc4fYiuKeviD61JKRGhHmpVKixB
-Tags: hack, hack alert, notification, file change notification, wordpress security, security, file security
-Requires at least: 3.5
-Requires PHP: 5.6
-Tested up to: 5.2.3
-Stable tag: 1.3
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Contributors: De paragon<br>
+Donate link: 3HPrLAAqc4fYiuKeviD61JKRGhHmpVKixB<br>
+Tags: hack, hack alert, notification, file change notification, wordpress security, security, file security<br>
+Requires at least: 3.5<br>
+Requires PHP: 5.6<br>
+Tested up to: 5.2.3<br>
+Stable tag: 1.3<br>
+License: GPLv2 or later<br>
+License URI: http://www.gnu.org/licenses/gpl-2.0.html<br>
 
 
 # Description
