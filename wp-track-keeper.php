@@ -20,20 +20,20 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-function activate()
+function activateTK()
 {
     require_once plugin_dir_path(__FILE__).'/inc/TKActivation.php';
     TKActivation::run();
 }
 
-function deactivate()
+function deactivateTK()
 {
     require_once plugin_dir_path(__FILE__).'/inc/TKDeactivation.php';
     TKDeactivation::run();
 }
 
-register_activation_hook(__FILE__, 'activate');
-register_deactivation_hook(__FILE__, 'deactivate');
+register_activation_hook(__FILE__, 'activateTK');
+register_deactivation_hook(__FILE__, 'deactivateTK');
 
 /**
  * Let's Do it.

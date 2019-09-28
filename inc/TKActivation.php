@@ -8,7 +8,7 @@ class TKActivation
 
 		 self::createSchedule();
 		 self::createTable();
-		 self::addReference();
+		 self::preConfig();
 	}
 
 
@@ -51,10 +51,6 @@ public static function createTable()
 
 
 
- public static function addReference()
- {
-
- }
 
 
  public static function preConfig()
