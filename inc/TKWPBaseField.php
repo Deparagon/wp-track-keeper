@@ -30,8 +30,8 @@ class TKWPBaseField
         if($fileInfo->isDot()) continue;
         if($fileInfo->getExtension() != $filetype) continue;
            if($filetype =='js'){
-
            	  wp_enqueue_script($fileInfo->getBasename(), $location.$fileInfo->getFilename(), array('jquery'), '', true);
+
            }
            elseif($filetype =='css'){
                wp_enqueue_style($fileInfo->getBasename(), $location.$fileInfo->getFilename(), array(), $this->getVersion(), 'All');
@@ -52,6 +52,7 @@ class TKWPBaseField
     public function adminScripts()
     {
       
+         
 
        if(is_dir(plugin_dir_path(dirname(__FILE__)).'assets/js/')){
          $this->directoryServer(plugin_dir_path(dirname(__FILE__)).'assets/js/', 'js', plugins_url().'/'.$this->name.'/assets/js/');
@@ -66,6 +67,12 @@ class TKWPBaseField
       if(is_dir(plugin_dir_path(dirname(__FILE__)).'admin/css/')){
        $this->directoryServer(plugin_dir_path(dirname(__FILE__)).'admin/css/', 'css',plugins_url().'/'.$this->name.'/admin/css/');
      }
+
+        
+    
+
+
+
     }
 
 
@@ -74,9 +81,11 @@ class TKWPBaseField
     {
            add_action('admin_enqueue_scripts', array($this, 'adminScripts'));
 
+
           if(is_dir(plugin_dir_path(dirname(__FILE__)).'admin/')){
            $this->directoryServer(plugin_dir_path(dirname(__FILE__)).'admin/', 'php');
          }
+
 
     }
 

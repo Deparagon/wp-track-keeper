@@ -1,6 +1,6 @@
 <?php
 /**
- * HTTP://trackkeeper.site.
+ * TK : MOMENT
  */
 if (!defined('ABSPATH')) {
     exit;
@@ -10,13 +10,15 @@ class TKTrackKeeperLoad
     
     public function __construct()
     {
-        
+
         add_action('admin_menu', array($this, 'addmenuPage'));
         add_action('admin_footer', array($this, 'addMilitaryAjaxCall'));
         add_action('wp_ajax_saveNewReferenceStatePHP', array($this, 'saveNewReferenceStatePHP'));
 
         add_action('wp_ajax_killSuspectedInfectedFilePHP', array($this, 'killSuspectedInfectedFilePHP'));
         add_action('wp_ajax_quarantSuspectedInfectedFilePHP', array($this, 'quarantSuspectedInfectedFilePHP'));
+
+
     }
 
     public function addmenuPage()
@@ -37,8 +39,7 @@ class TKTrackKeeperLoad
    <h4 class=""> Load files within your wordpress installation folder. Inspect the files and set "Reference state". </h4>
    <span><em>Reference state is the best state of your files, the way you want your files to remain until next update.</em></span> 
            <div class="big-button-box">
-            <a href="<?php echo admin_url();
-        ?>/admin.php?page=tk_military_action&tkloadstate=yes" class="pure-button-success button-xlarge pure-button loadbtn">Load all Files</a>
+            <a href="<?php echo admin_url();?>/admin.php?page=tk_military_action&tkloadstate=yes&reqtoken=<?php echo wp_create_nonce('tk_secure_link'); ?>" class="pure-button-success button-xlarge pure-button loadbtn">Load all Files</a>
         </div>
 
   </div>
@@ -48,8 +49,7 @@ class TKTrackKeeperLoad
   <h4> Compare files </h4>
   <span> Ensure that you have a saved reference file before comparing files. </span>
 <div class="big-button-box">
-            <a href="<?php echo admin_url();
-        ?>/admin.php?page=tk_military_action&tkcomparestate=yes" class="pure-button-success button-xlarge pure-button loadbtn">Compare   Files</a>
+            <a href="<?php echo admin_url(); ?>/admin.php?page=tk_military_action&tkcomparestate=yes&reqtoken=<?php echo wp_create_nonce('tk_secure_link'); ?>" class="pure-button-success button-xlarge pure-button loadbtn">Compare   Files</a>
         </div>
 
   </div>
@@ -67,7 +67,13 @@ class TKTrackKeeperLoad
 <?php
 if (isset($_GET)) {
     if (isset($_GET['tkcomparestate'])) {
-        if ($_GET['tkcomparestate'] == 'yes') {
+        
+        if(!wp_verify_nonce( sanitize_text_field($_GET['reqtoken']), 'tk_secure_link')){
+            wp_die('Could not load page: This page has expired');
+        }
+
+
+        if (sanitize_text_field($_GET['tkcomparestate']) == 'yes') {
             $nktracker = new TKTracker();
             $nkchoosen = new TKReferenceState();
 
@@ -273,7 +279,11 @@ if (isset($_GET)) {
 
 <?php if (isset($_GET)) {
     if (isset($_GET['tkloadstate'])) {
-        if ($_GET['tkloadstate'] == 'yes') {
+        if(!wp_verify_nonce( sanitize_text_field($_GET['reqtoken']), 'tk_secure_link')){
+            wp_die('Could not load page: This page has expired');
+        }
+
+        if (sanitize_text_field($_GET['tkloadstate']) == 'yes') {
             $nktracker = new TKTracker();
             $nkchoosen = new TKReferenceState();
             ?>
@@ -407,11 +417,10 @@ if (isset($_GET)) {
 
     }
 
-    public function addMilitaryAjaxCall()
-    {
-        ?>
-<script type="text/javascript">
-jQuery(document).ready(function($){
+  public function addMilitaryAjaxCall()
+  {  ?>
+    <script type="text/javascript">
+        jQuery(document).ready(function($){
 
 $('#nksaverefstatebtn').on('click', function(ev){
    ev.preventDefault();
@@ -420,6 +429,7 @@ $('#nksaverefstatebtn').on('click', function(ev){
    if(conf){
    $('#nksaverefstatebtn').html('<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Saving...</span>');
        var saverefdata = {
+          _ajax_nonce: "<?php echo wp_create_nonce('tk_ajax_secret_token_var');?>",
          token:'FC3FD0AF-BEC0-43B6-B0C7-F7F591135B24',
          action:'saveNewReferenceStatePHP',
        }
@@ -442,6 +452,7 @@ $('body').on('click', '#killdelsuspinffile', function(ev){
           ev.preventDefault();
           var fileline= $(this).closest('tr');
           var deldata = {
+              _ajax_nonce: "<?php echo wp_create_nonce('tk_ajax_secret_token_var');?>",
               token:'E13C48E4-DF60-4772-B047-FD8920A15AEA',
               filelocation: $(this).data('idhrefkillfile'),
               action:'killSuspectedInfectedFilePHP'
@@ -463,6 +474,8 @@ $('body').on('click', '#quarantinedfilsusp', function(ev){
           ev.preventDefault();
           var fileline= $(this).closest('tr');
           var deldata = {
+              _ajax_nonce: "<?php echo wp_create_nonce('tk_ajax_secret_token_var');?>",
+
               token:'051CE73E-7DEF-46BF-9340-C71CCB7E7010',
               filelocation: $(this).data('idfilequarantine'),
               action:'quarantSuspectedInfectedFilePHP'
@@ -483,23 +496,32 @@ $('body').on('click', '#quarantinedfilsusp', function(ev){
 
 
 });
+        
+    </script>
 
-</script>
 
-    <?php
-
-    }
+ <?php
+  }
 
     public function saveNewReferenceStatePHP()
     {
+        check_ajax_referer( 'tk_ajax_secret_token_var', '_ajax_nonce' );
+        // $curr_admin  = wp_get_current_user();
+         if(!current_user_can( 'manage_options' )){
+           wp_die('Not accessible');
+
+         }
+
         require_once plugin_dir_path(dirname(__FILE__)).'classes/TKTracker.php';
         $nktracker = new TKTracker();
         if (isset($_POST)) {
             if (isset($_POST['token'])) {
-                if ($_POST['token'] == 'FC3FD0AF-BEC0-43B6-B0C7-F7F591135B24') {
+
+
+                if (sanitize_text_field($_POST['token']) == 'FC3FD0AF-BEC0-43B6-B0C7-F7F591135B24') {
                     $report = $nktracker->getAllfiles(ABSPATH, 1);
                     echo $report;
-                    exit;
+                    wp_die();
                 }
             }
         }
@@ -507,19 +529,25 @@ $('body').on('click', '#quarantinedfilsusp', function(ev){
 
     public function killSuspectedInfectedFilePHP()
     {
+        if(!current_user_can( 'manage_options' )){
+           wp_die('Not accessible');
+
+         }
+      check_ajax_referer( 'tk_ajax_secret_token_var', '_ajax_nonce' );
         if (isset($_POST)) {
             if (isset($_POST['token'])) {
-                if ($_POST['token'] == 'E13C48E4-DF60-4772-B047-FD8920A15AEA') {
-                    $file = $_POST['filelocation'];
+                if (sanitize_text_field($_POST['token'] )== 'E13C48E4-DF60-4772-B047-FD8920A15AEA') {
+                    $file = sanitize_text_field($_POST['filelocation']);
+                    
                     if ($file != '') {
                         if (file_exists($file)) {
                             unlink($file);
                             echo 'success';
-                            exit;
+                            wp_die();
                         }
                     } else {
                         echo 'failed';
-                        exit;
+                        wp_die();
                     }
                 }
             }
@@ -527,27 +555,34 @@ $('body').on('click', '#quarantinedfilsusp', function(ev){
     }
     public function quarantSuspectedInfectedFilePHP()
     {
+        if(!current_user_can( 'manage_options' )){
+           wp_die('Not accessible');
+
+         }
+      check_ajax_referer( 'tk_ajax_secret_token_var', '_ajax_nonce' );
         if (isset($_POST)) {
             if (isset($_POST['token'])) {
-                if ($_POST['token'] == '051CE73E-7DEF-46BF-9340-C71CCB7E7010') {
-                    $file = $_POST['filelocation'];
+                if (sanitize_text_field($_POST['token']) == '051CE73E-7DEF-46BF-9340-C71CCB7E7010') {
+
+                    $file = sanitize_text_field($_POST['filelocation']);
+               
+
                     if ($file != '') {
                         if (file_exists($file)) {
                             //unlink($file);
                             rename($file, $file.'_tk_sus.txt');
                             echo 'success';
-                            exit;
+                            wp_die();
                         }
                     } else {
                         echo 'failed';
-                        exit;
+                        wp_die();
                     }
                 }
             }
         }
     }
 }// close class
-
 
  new TKTrackKeeperLoad();
 

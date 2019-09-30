@@ -10,10 +10,13 @@ class TKConfigurationAdmin
 {
     
     public function __construct()
-    {
+    { 
+       
         add_action('admin_init', array($this, 'registerTKMilitaryActionSetting'));
         add_action('admin_menu', array($this, 'addmenuPage'));
-        add_action('admin_footer', array($this, 'addTestAjaxCall'));
+     
+
+      
     }
 
     public function addmenuPage()
@@ -23,34 +26,38 @@ class TKConfigurationAdmin
 
     public function registerTKMilitaryActionSetting()
     {
-        // cron add
-        register_setting('tk_cronwp', 'tk_cron_set_enable', array($this, 'saveTKSettings'));
-        register_setting('tk_cronwp', 'tk_cron_set_delete', array($this, 'saveTKSettings'));
 
-        register_setting('tk_cronwp', 'tk_cron_set_frequency', array($this, 'saveTKSettings'));
+        register_setting('tk_cronwp', 'tk_cron_set_enable', ['type'=>'string','sanitize_callback'=>array($this, 'saveTKSettings')]);
+        register_setting('tk_cronwp', 'tk_cron_set_delete', ['type'=>'string','sanitize_callback'=>array($this, 'saveTKSettings')]);
 
-        register_setting('tk_cronwp', 'tk_cron_set_mix_name_file', array($this, 'saveTKSettings'));
-        register_setting('tk_cronwp', 'tk_cron_set_sendmail', array($this, 'saveTKSettings'));
+        register_setting('tk_cronwp', 'tk_cron_set_frequency',['type'=>'string','sanitize_callback'=>array($this, 'saveTKSettings')]);
 
-        register_setting('tk_cronwp', 'tk_cron_set_sendsms', array($this, 'savetkSettings'));
-        register_setting('tk_cronwp', 'tk_reportto_email', array($this, 'saveTKSettings'));
+        register_setting('tk_cronwp', 'tk_cron_set_mix_name_file', ['type'=>'string','sanitize_callback'=>array($this, 'saveTKSettings')]);
+        register_setting('tk_cronwp', 'tk_cron_set_sendmail', ['type'=>'string','sanitize_callback'=>array($this, 'saveTKSettings')]);
 
-        register_setting('tk_cronwp', 'tk_cron_set_mail_email', array($this, 'saveTKSettings'));
+        register_setting('tk_cronwp', 'tk_cron_set_sendsms', ['type'=>'string','sanitize_callback'=>array($this, 'saveTKSettings')]);
+
+        register_setting('tk_cronwp', 'tk_cron_set_mail_email', array($this, 'saveTKEmailSettings'));
+
 
         register_setting('tk_cronwp', 'tk_cron_set_sms_number', array($this, 'saveTKSettings'));
-        register_setting('tk_cronwp', 'tk_cron_set_sms_username', array($this, 'saveTKSettings'));
-        register_setting('tk_cronwp', 'tk_cron_set_sms_password', array($this, 'saveTKSettings'));
+        register_setting('tk_cronwp', 'tk_cron_set_sms_username', ['type'=>'string','sanitize_callback'=>array($this, 'saveTKSettings')]);
+        register_setting('tk_cronwp', 'tk_cron_set_sms_password', ['type'=>'string','sanitize_callback'=>array($this, 'saveTKSettings')]);
 
 
-        register_setting('tk_cronwp', 'tk_cron_set_sms_sender', array($this, 'saveTKSettings'));
+        register_setting('tk_cronwp', 'tk_cron_set_sms_sender', ['type'=>'string','sanitize_callback'=>array($this, 'saveTKSettings')]);
 
-        register_setting('tk_cronwp', 'tk_cron_set_smtp', array($this, 'saveTKSettings'));
-        register_setting('tk_cronwp', 'tk_cron_set_smtp_host', array($this, 'saveTKSettings'));
-        register_setting('tk_cronwp', 'tk_cron_set_smtp_port', array($this, 'saveTKSettings'));
-        register_setting('tk_cronwp', 'tk_cron_set_smtp_user', array($this, 'saveTKSettings'));
-        register_setting('tk_cronwp', 'tk_cron_set_smtp_password', array($this, 'saveTKSettings'));
+        register_setting('tk_cronwp', 'tk_cron_set_smtp', ['type'=>'string','sanitize_callback'=>array($this, 'saveTKSettings')]);
+        register_setting('tk_cronwp', 'tk_cron_set_smtp_host', ['type'=>'string','sanitize_callback'=>array($this, 'saveTKSettings')]);
+        register_setting('tk_cronwp', 'tk_cron_set_smtp_port', ['type'=>'number','sanitize_callback'=>array($this, 'saveTKNumberSettings')]);
+        register_setting('tk_cronwp', 'tk_cron_set_smtp_user', ['type'=>'string','sanitize_callback'=>array($this, 'saveTKSettings')]);
+        register_setting('tk_cronwp', 'tk_cron_set_smtp_password', ['type'=>'string','sanitize_callback'=>array($this, 'saveTKSettings')]);
 
-        register_setting('tk_cronwp', 'tk_cron_set_smtp_encryption', array($this, 'saveTKSettings'));
+        register_setting('tk_cronwp', 'tk_cron_set_smtp_encryption', ['type'=>'string','sanitize_callback'=>array($this, 'saveTKSettings')]);
+
+
+
+
 
     }
 
@@ -61,36 +68,38 @@ class TKConfigurationAdmin
      */
     public function tkSettingCurrentPage()
     {
-        $tk_cron_set_enable = get_option('tk_cron_set_enable');
-        $tk_cron_set_delete = get_option('tk_cron_set_delete');
+        $tk_cron_set_enable = esc_attr(get_option('tk_cron_set_enable'));
+        $tk_cron_set_delete = esc_attr(get_option('tk_cron_set_delete'));
 
-        $tk_cron_set_frequency = get_option('tk_cron_set_frequency');
+        $tk_cron_set_frequency = esc_attr(get_option('tk_cron_set_frequency'));
 
-        $tk_cron_set_mix_name_file = get_option('tk_cron_set_mix_name_file');
+        $tk_cron_set_mix_name_file = esc_attr(get_option('tk_cron_set_mix_name_file'));
 
-        $tk_cron_set_sendsms = get_option('tk_cron_set_sendsms');
-        $tk_cron_set_sms_sender = get_option('tk_cron_set_sms_sender');
-        $tk_cron_set_sms_number = get_option('tk_cron_set_sms_number');
-        $tk_cron_set_sms_username = get_option('tk_cron_set_sms_username');
-        $tk_cron_set_sms_password = get_option('tk_cron_set_sms_password');
+        $tk_cron_set_sendsms = esc_attr(get_option('tk_cron_set_sendsms'));
+        $tk_cron_set_sms_sender = esc_attr(get_option('tk_cron_set_sms_sender'));
+        $tk_cron_set_sms_number = esc_attr(get_option('tk_cron_set_sms_number'));
+        $tk_cron_set_sms_username = esc_attr(get_option('tk_cron_set_sms_username'));
+        $tk_cron_set_sms_password = esc_attr(get_option('tk_cron_set_sms_password'));
 
-        $tk_cron_set_sendmail = get_option('tk_cron_set_sendmail');
-        $tk_cron_set_mail_email = get_option('tk_cron_set_mail_email');
+        $tk_cron_set_sendmail = esc_attr(get_option('tk_cron_set_sendmail'));
+        $tk_cron_set_mail_email = esc_attr(get_option('tk_cron_set_mail_email'));
 
-        $tk_cron_set_smtp = get_option('tk_cron_set_smtp');
-        $tk_cron_set_smtp_host = get_option('tk_cron_set_smtp_host');
+        $tk_cron_set_smtp = esc_attr(get_option('tk_cron_set_smtp'));
+        $tk_cron_set_smtp_host = esc_attr(get_option('tk_cron_set_smtp_host'));
                 
-        $tk_cron_set_smtp_port = get_option('tk_cron_set_smtp_port');
-        $tk_cron_set_smtp_user = get_option('tk_cron_set_smtp_user');
+        $tk_cron_set_smtp_port = esc_attr(get_option('tk_cron_set_smtp_port'));
+        $tk_cron_set_smtp_user = esc_attr(get_option('tk_cron_set_smtp_user'));
 
-        $tk_cron_set_smtp_password = get_option('tk_cron_set_smtp_password');
+        $tk_cron_set_smtp_password = esc_attr(get_option('tk_cron_set_smtp_password'));
 
-        $tk_cron_set_smtp_encryption = get_option('tk_cron_set_smtp_encryption');
+        $tk_cron_set_smtp_encryption = esc_attr(get_option('tk_cron_set_smtp_encryption'));
 
         ?>
-    <hr/>
 
+<br>
+<?php settings_errors(); ?>
 
+<br>
 
     <div class="pure-g">
            <h2 class="top_desc center-h2"> Statistics From Last Scan </h2>
@@ -102,7 +111,7 @@ class TKConfigurationAdmin
                     <h2>Deleted </h2>
 
                     <span class="pricing-table-price">
-                        <?php echo number_format(get_option('tk_deletedf_count')); 
+                        <?php echo number_format(esc_attr( get_option('tk_deletedf_count'))); 
         ?> <span> file(s)</span>
                     </span>
                 
@@ -112,7 +121,7 @@ class TKConfigurationAdmin
                       <h2>Modified</h2>
 
                     <span class="pricing-table-price">
-                        <?php echo number_format(get_option('tk_doctoredf_count'));
+                        <?php echo number_format(esc_attr(get_option('tk_doctoredf_count')));
         ?> <span>file(s)</span>
                     </span>
                
@@ -123,7 +132,7 @@ class TKConfigurationAdmin
                     <h2>New </h2>
 
                     <span class="pricing-table-price">
-                       <?php echo number_format(get_option('tk_newf_count'));
+                       <?php echo number_format(esc_attr(get_option('tk_newf_count')));
         ?>  <span>file(s)</span>
                     </span>
               
@@ -134,7 +143,7 @@ class TKConfigurationAdmin
                 <h2>Total Files</h2>
 
                     <span class="pricing-table-price">
-                        <?php echo number_format(get_option('tk_totalref_count'));
+                        <?php echo number_format(esc_attr(get_option('tk_totalref_count')));
         ?> <span> file(s)</span>
                     </span>
         
@@ -179,7 +188,8 @@ class TKConfigurationAdmin
     </div>
      <span> <span class="danger"> Not Recommended</span> <em> Empower Track Keeper to delete new files on discovery </em> </span> 
 
-
+     
+     <br><br>
     <div class="switch-field">
       <div class="switch-title"> Quarantine new files  <span> <em>Enable Track Keeper to quarantine new files on discovery </em> </span></div>
       <input type="radio" id="switch_enablequarantine" name="tk_cron_set_mix_name_file" value="yes" <?php echo ($tk_cron_set_mix_name_file == 'yes') ? ' Checked' : '';
@@ -346,28 +356,39 @@ a day', 'wp-track-keeper'); ?> </option>
 
     public function saveTKSettings($var)
     {
-        // you can process before returning 
-        return $var;
+        return sanitize_text_field($var);
     }
 
-    public function addTestAjaxCall()
+    public function saveTKEmailSettings($email)
     {
-        ?>
-<script type="text/javascript">
-jQuery('document').ready(function(){
-
-// all your javascript for this page here
-
-});
-
-</script>
-
-    <?php
-
+        if(!$this->isEmail($email)){
+          add_settings_error( $email, "invalid_{$email}", 'Invalid email: Email address for receiving alert is required' );
     }
+       return sanitize_email($email);
+    }
+
+        
+
+    
+    public function isEmail($email)
+     {
+       if(filter_var($email, FILTER_VALIDATE_EMAIL)){
+          return true;
+       }
+       return false;
+     }
+
+    public function saveTKNumberSettings($port)
+    {
+        return (int) $port;
+    }
+
+
+
+    
 }// close class
 
 
- new TKConfigurationAdmin();
+new TKConfigurationAdmin();
 
 ?>

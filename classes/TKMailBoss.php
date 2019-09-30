@@ -62,7 +62,7 @@ class TKMailBoss
    
     public function getVar()
     {
-        return ['[:sitename:]'=> get_bloginfo('name'), '[:siteurl:]'=>get_bloginfo('url'), '[:imagebanner:]'=>plugins_url().'/'.$this->plugin_name.'/mail/img/bg.jpg', '[:blankgif:]'=>plugins_url().'/'.$this->plugin_name.'/mail/img/blank.gif'];
+        return ['[:sitename:]'=> get_bloginfo('name'), '[:siteurl:]'=>get_bloginfo('url'), '[:imagebanner:]'=>plugins_url().'/'.$this->plugin_name.'/mail/img/bg.jpg', '[:blankgif:]'=>plugins_url().'/'.$this->plugin_name.'/mail/img/blank.gif', '<script>'=>' ', '</script>'=>' '];
     }
 
 	public function sendSMTP($content, $summary)
@@ -104,7 +104,7 @@ try {
     $mail->isHTML(true);                                  
     $mail->Subject = $this->getSubject();
     $mail->Body    = $this->prepareBody($content, $summary);
-    $mail->AltBody = 'Check '.get_bloginfo('name').' file changes occured';
+    $mail->AltBody = 'Check '.get_bloginfo('name').' files: Some files were modified';
 
     $mail->send();
     return true;
@@ -119,7 +119,13 @@ try {
 
 	public function generateTemplate($t_vars)
 	{
-		 $c = file_get_contents(plugins_url().'/'.$this->plugin_name.'/mail/en.html');
+        
+        try{
+         $c =file_get_contents(plugins_url().'/'.$this->plugin_name.'/mail/en.html');
+        }
+        catch(Exception $e){
+       return ' Could not load mail template ';
+        }
 		 $t_keys = array_keys($t_vars);
 		 $t_values = array_values($t_vars);
          $content =  str_replace($t_keys, $t_values, $c);
